@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
-
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="474.0" prefWidth="923.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.die_gfi.projektunterrichtsprotokolle.ProtocolController">
    <children>
@@ -18,36 +20,57 @@
          </font>
       </Label>
 
-      <Label layoutX="24.0" layoutY="127.0" text="Referent:" />
-      <ChoiceBox fx:id="cBoxReferent" layoutX="128.0" layoutY="123.0" prefHeight="25.0" prefWidth="174.0" />
+      <Label layoutX="23.0" layoutY="65.0" text="Referent:" />
+      <ChoiceBox fx:id="cBoxReferent" layoutX="127.0" layoutY="61.0" onAction="#refSelected" prefHeight="25.0" prefWidth="174.0" />
 
-      <Label layoutX="405.0" layoutY="127.0" text="1. Maßnahme:" />
-      <ChoiceBox fx:id="cBoxMsn1" layoutX="500.0" layoutY="123.0" prefWidth="174.0" />
-      <Label fx:id="lblSemL1" layoutX="701.0" layoutY="127.0" text="&lt;Seminarleiter 1&gt;" />
+      <Label layoutX="404.0" layoutY="65.0" text="1. Maßnahme:" />
+      <ChoiceBox fx:id="cBoxMsn1" layoutX="499.0" layoutY="61.0" onAction="#msn1Selected" prefWidth="174.0" />
+      <Label fx:id="lblSemL1" layoutX="700.0" layoutY="65.0" text="&lt;Seminarleiter 1&gt;" />
 
-      <Label layoutX="405.0" layoutY="158.0" text="2. Maßnahme:" />
-      <ChoiceBox fx:id="cBoxMsn2" disable="true" layoutX="500.0" layoutY="154.0" prefWidth="174.0" />
-      <Label fx:id="lblSemL2" layoutX="701.0" layoutY="158.0" text="&lt;Seminarleiter 2&gt;" />
-      <TextField fx:id="tBoxUOrt" layoutX="128.0" layoutY="185.0" prefHeight="25.0" prefWidth="174.0" />
-      <Label layoutX="24.0" layoutY="189.0" text="Unterrichtsort:" />
-      <DatePicker fx:id="dPickVon" layoutX="128.0" layoutY="216.0" />
-      <Label layoutX="24.0" layoutY="220.0" text="von:" />
-      <DatePicker fx:id="dPickBis" layoutX="500.0" layoutY="216.0" />
-      <Label layoutX="462.0" layoutY="220.0" text="bis:" />
-      <CheckBox fx:id="checkBoxFriday" layoutX="701.0" layoutY="220.0" mnemonicParsing="false" text="mit Freitag" />
-      <TextField fx:id="tBoxDates" layoutX="128.0" layoutY="247.0" prefHeight="25.0" prefWidth="460.0" />
-      <Label layoutX="596.0" layoutY="251.0" text="Format TT.MM. getrennt durch komma (z.b. 01.10., 02.10.)" />
-      <TextField fx:id="tBoxTarget" layoutX="128.0" layoutY="278.0" prefHeight="25.0" prefWidth="542.0" />
-      <Label layoutX="24.0" layoutY="251.0" text="für diese Tage:" />
-      <Button fx:id="btnSelectFolder" layoutX="701.0" layoutY="278.0" mnemonicParsing="false" text="Auswählen" />
-      <Label layoutX="24.0" layoutY="282.0" text="Zielordner:" />
-      <CheckBox fx:id="checkBoxZip" layoutX="24.0" layoutY="313.0" mnemonicParsing="false" text="ZIP-Archiv erzeugen" />
-      <CheckBox fx:id="checkBoxOpen" layoutX="24.0" layoutY="344.0" mnemonicParsing="false" text="Zielordner nach dem Generieren öffnen" />
-      <Button fx:id="btnOpenFolder" layoutX="318.0" layoutY="340.0" mnemonicParsing="false" text="Jetzt öffnen" />
-      <CheckBox fx:id="checkBoxCopyEmail" layoutX="24.0" layoutY="375.0" mnemonicParsing="false" text="EMail des Referenten in Zwischenablage kopieren" />
-      <CheckBox fx:id="checkBoxSort" layoutX="24.0" layoutY="406.0" mnemonicParsing="false" text="Dateinamen für Sortieren optimieren" />
-      <Label fx:id="lblFileName" layoutX="318.0" layoutY="406.0" text="&lt;MSN_DATE_Protokoll.docx" />
-      <Button fx:id="btnGenerate" layoutX="701.0" layoutY="402.0" mnemonicParsing="false" text="Protokollvorlage Generieren" />
-      <Button fx:id="btnFinish" layoutX="819.0" layoutY="433.0" mnemonicParsing="false" text="Fertig" />
+      <Label layoutX="404.0" layoutY="96.0" text="2. Maßnahme:" />
+      <ChoiceBox fx:id="cBoxMsn2" disable="true" layoutX="499.0" layoutY="92.0" onAction="#msn2Selected" prefWidth="174.0" />
+      <Label fx:id="lblSemL2" layoutX="700.0" layoutY="96.0" text="&lt;Seminarleiter 2&gt;" />
+
+      <Label layoutX="23.0" layoutY="127.0" text="Unterrichtsort:" />
+      <TextField fx:id="tBoxUOrt" layoutX="127.0" layoutY="123.0" onKeyTyped="#uOrtTyped" prefHeight="25.0" prefWidth="174.0" />
+
+      <Label layoutX="23.0" layoutY="158.0" text="von:" />
+      <DatePicker fx:id="dPickVon" layoutX="127.0" layoutY="154.0" onAction="#dateVonPicked" />
+
+      <Label layoutX="461.0" layoutY="158.0" text="bis:" />
+      <DatePicker fx:id="dPickBis" layoutX="499.0" layoutY="154.0" onAction="#dateBisPicked" />
+
+      <Label layoutX="23.0" layoutY="189.0" text="für diese Tage:" />
+      <CheckBox fx:id="checkBoxFriday" layoutX="700.0" layoutY="158.0" mnemonicParsing="false" text="mit Freitag" onAction="#onCheckboxFriday"/>
+      <TextField fx:id="tBoxDates" layoutX="127.0" layoutY="185.0" prefHeight="25.0" prefWidth="460.0" onKeyTyped="#onDateTyped"/>
+      <Label layoutX="595.0" layoutY="189.0" text="Format TT.MM. getrennt durch komma (z.b. 01.10., 02.10.)" />
+
+      <TextField fx:id="tBoxTarget" layoutX="127.0" layoutY="216.0" prefHeight="25.0" prefWidth="542.0" onKeyTyped="#onTargetUpdated"/>
+      <Button fx:id="btnSelectFolder" layoutX="700.0" layoutY="216.0" mnemonicParsing="false" text="Auswählen" onAction="#onFolderSelect"/>
+      <Label layoutX="23.0" layoutY="220.0" text="Zielordner:" />
+
+      <CheckBox fx:id="checkBoxZip" layoutX="23.0" layoutY="251.0" mnemonicParsing="false" text="ZIP-Archiv erzeugen" onAction="#onZipChecked"/>
+      <CheckBox fx:id="checkBoxOpen" layoutX="23.0" layoutY="282.0" mnemonicParsing="false" text="Zielordner nach dem Generieren öffnen" onAction="#onOpenChecked"/>
+      <Button fx:id="btnOpenFolder" layoutX="317.0" layoutY="278.0" mnemonicParsing="false" text="Jetzt öffnen" onAction="#onOpenClicked"/>
+      <CheckBox fx:id="checkBoxCopyEmail" layoutX="23.0" layoutY="313.0" mnemonicParsing="false" text="EMail des Referenten in Zwischenablage kopieren" onAction="#onCopyChecked"/>
+      <CheckBox fx:id="checkBoxSort" layoutX="23.0" layoutY="344.0" mnemonicParsing="false" text="Dateinamen für Sortieren optimieren" onAction="#onSortChecked"/>
+
+      <Label fx:id="lblFileName" layoutX="317.0" layoutY="344.0" text="&lt;MSN_DATE_Protokoll.docx" />
+      <Button fx:id="btnGenerate" layoutX="700.0" layoutY="340.0" mnemonicParsing="false" text="Protokollvorlage Generieren" onAction="#onGenerate" disable="true"/>
+      <Button fx:id="btnFinish" layoutX="818.0" layoutY="371.0" mnemonicParsing="false" text="Fertig" onAction="#onFinish"/>
+
+      <ImageView fx:id="btnEditRef" fitHeight="25.0" fitWidth="23.0" layoutX="307.0" layoutY="62.0" pickOnBounds="true" preserveRatio="true" onMouseClicked="#editRef">
+         <image>
+            <Image url="@images/wrench-icon-25543.png" />
+         </image></ImageView>
+
+      <ImageView fx:id="btnEditMsn" fitHeight="25.0" fitWidth="23.0" layoutX="807.0" layoutY="62.0" pickOnBounds="true" preserveRatio="true" onMouseClicked="#editMsn">
+         <image>
+            <Image url="@images/wrench-icon-25543.png" />
+         </image>
+         <viewport>
+            <Rectangle2D />
+         </viewport>
+      </ImageView>
    </children>
 </AnchorPane>
