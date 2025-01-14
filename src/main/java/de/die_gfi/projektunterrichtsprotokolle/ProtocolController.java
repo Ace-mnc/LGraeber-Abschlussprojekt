@@ -1,12 +1,23 @@
 package de.die_gfi.projektunterrichtsprotokolle;
 
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
-public class ProtocolController {
+import java.net.URL;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+
+public class ProtocolController  {
     @FXML
     public ChoiceBox cBoxReferent;
     @FXML
@@ -47,6 +58,40 @@ public class ProtocolController {
     public Button btnGenerate;
     @FXML
     public Button btnFinish;
+
+
+//    @Override
+//    public void initialize(URL url, ResourceBundle resourceBundle) {
+//        dbcon.openConnection(Property.readProperties());
+//        setChoiceBox(choiceSem1, "Name", "Masznahmen", sem1, "Seminarleitung 1");
+//        setChoiceBox(choiceSem2, "Name", "Masznahmen", sem2, "Seminarleitung 2");
+//        setChoiceBox(choiceReferent, "Nachname", "referenten", null, null);
+//        System.out.println(choiceReferent.getItems());
+//        textFieldZielordner.setPromptText(DEFAULTFOLDER);
+//        fileNameChanger();
+//    }
+//
+//    private void setChoiceBox(ChoiceBox<String> cb, String slc, String tbl, Label lbl, String lbT) {
+//        List<String> rsl = new ArrayList<>();
+//        rsl.add("Abwählen");
+//        ResultSet rs;
+//        try {
+//            PreparedStatement stmt = this.dbcon.getConnection().prepareStatement("SELECT " + slc + " FROM " + tbl);
+//            stmt.execute();
+//            rs = stmt.getResultSet();
+//            while (rs.next()) {
+//                rsl.add(rs.getString(1));
+//            }
+//
+//        } catch (SQLException e) {
+//            System.out.println(e);
+//        }
+
+//        cb.setItems(FXCollections.observableList(rsl));
+//        if (lbl != null) {
+//            lbl.setText("<" + lbT + ">");
+//        }
+//    }
 
     public void refSelected() {
     }
@@ -98,12 +143,15 @@ public class ProtocolController {
     }
 
     public void onFinish() {
+        Stage stage = (Stage) btnFinish.getScene().getWindow();
+        stage.close();
     }
 
     public void editRef() {
+        System.out.println("RefEdit");
     }
 
     public void editMsn() {
-
+        System.out.println("MsnEdit");
     }
 }
