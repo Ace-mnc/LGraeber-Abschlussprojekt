@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -7,6 +8,7 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -25,14 +27,14 @@
 
       <Label layoutX="404.0" layoutY="65.0" text="1. Maßnahme:" />
       <ChoiceBox fx:id="cBoxMsn1" layoutX="499.0" layoutY="61.0" onAction="#msn1Selected" prefWidth="174.0" />
-      <Label fx:id="lblSemL1" layoutX="700.0" layoutY="65.0" text="&lt;Seminarleiter 1&gt;" />
+      <Label fx:id="lblSemL1" layoutX="712.0" layoutY="63.0" text="&lt;Seminarleiter 1&gt;" />
 
       <Label layoutX="404.0" layoutY="96.0" text="2. Maßnahme:" />
       <ChoiceBox fx:id="cBoxMsn2" disable="true" layoutX="499.0" layoutY="92.0" onAction="#msn2Selected" prefWidth="174.0" />
-      <Label fx:id="lblSemL2" layoutX="700.0" layoutY="96.0" text="&lt;Seminarleiter 2&gt;" />
+      <Label fx:id="lblSemL2" layoutX="712.0" layoutY="94.0" text="&lt;Seminarleiter 2&gt;" />
 
       <Label layoutX="23.0" layoutY="127.0" text="Unterrichtsort:" />
-      <TextField fx:id="tBoxUOrt" layoutX="127.0" layoutY="123.0" onKeyTyped="#uOrtTyped" prefHeight="25.0" prefWidth="174.0" />
+      <TextField fx:id="tBoxUOrt" layoutX="127.0" layoutY="123.0" prefHeight="25.0" prefWidth="174.0" />
 
       <Label layoutX="23.0" layoutY="158.0" text="von:" />
       <DatePicker fx:id="dPickVon" layoutX="127.0" layoutY="154.0" onAction="#dateVonPicked" />
@@ -41,36 +43,57 @@
       <DatePicker fx:id="dPickBis" layoutX="499.0" layoutY="154.0" onAction="#dateBisPicked" />
 
       <Label layoutX="23.0" layoutY="189.0" text="für diese Tage:" />
-      <CheckBox fx:id="checkBoxFriday" layoutX="700.0" layoutY="158.0" mnemonicParsing="false" text="mit Freitag" onAction="#onCheckboxFriday"/>
-      <TextField fx:id="tBoxDates" layoutX="127.0" layoutY="185.0" prefHeight="25.0" prefWidth="460.0" onKeyTyped="#onDateTyped"/>
+      <CheckBox fx:id="checkBoxFriday" layoutX="700.0" layoutY="158.0" mnemonicParsing="false" onAction="#onCheckboxFriday" text="mit Freitag" />
+      <TextField fx:id="tBoxDates" layoutX="127.0" layoutY="185.0" prefHeight="25.0" prefWidth="460.0" />
       <Label layoutX="595.0" layoutY="189.0" text="Format TT.MM. getrennt durch komma (z.b. 01.10., 02.10.)" />
 
-      <TextField fx:id="tBoxTarget" layoutX="127.0" layoutY="216.0" prefHeight="25.0" prefWidth="542.0" onKeyTyped="#onTargetUpdated"/>
-      <Button fx:id="btnSelectFolder" layoutX="700.0" layoutY="216.0" mnemonicParsing="false" text="Auswählen" onAction="#onFolderSelect"/>
+      <TextField fx:id="tBoxTarget" layoutX="127.0" layoutY="216.0" onKeyTyped="#onTargetUpdated" prefHeight="25.0" prefWidth="542.0" />
+      <Button fx:id="btnSelectFolder" layoutX="700.0" layoutY="216.0" mnemonicParsing="false" onAction="#onFolderSelect" text="Auswählen" />
       <Label layoutX="23.0" layoutY="220.0" text="Zielordner:" />
 
-      <CheckBox fx:id="checkBoxZip" layoutX="23.0" layoutY="251.0" mnemonicParsing="false" text="ZIP-Archiv erzeugen" onAction="#onZipChecked"/>
-      <CheckBox fx:id="checkBoxOpen" layoutX="23.0" layoutY="282.0" mnemonicParsing="false" text="Zielordner nach dem Generieren öffnen" onAction="#onOpenChecked"/>
-      <Button fx:id="btnOpenFolder" layoutX="317.0" layoutY="278.0" mnemonicParsing="false" text="Jetzt öffnen" onAction="#onOpenClicked"/>
-      <CheckBox fx:id="checkBoxCopyEmail" layoutX="23.0" layoutY="313.0" mnemonicParsing="false" text="EMail des Referenten in Zwischenablage kopieren" onAction="#onCopyChecked"/>
-      <CheckBox fx:id="checkBoxSort" layoutX="23.0" layoutY="344.0" mnemonicParsing="false" text="Dateinamen für Sortieren optimieren" onAction="#onSortChecked"/>
+      <CheckBox fx:id="checkBoxZip" layoutX="23.0" layoutY="251.0" mnemonicParsing="false" onAction="#onZipChecked" text="ZIP-Archiv erzeugen" />
+      <CheckBox fx:id="checkBoxOpen" layoutX="23.0" layoutY="282.0" mnemonicParsing="false" onAction="#onOpenChecked" text="Zielordner nach dem Generieren öffnen" />
+      <Button fx:id="btnOpenFolder" layoutX="317.0" layoutY="278.0" mnemonicParsing="false" onAction="#onOpenClicked" text="Jetzt öffnen" />
+      <CheckBox fx:id="checkBoxCopyEmail" layoutX="23.0" layoutY="313.0" mnemonicParsing="false" onAction="#onCopyChecked" text="EMail des Referenten in Zwischenablage kopieren" />
+      <CheckBox fx:id="checkBoxSort" layoutX="23.0" layoutY="344.0" mnemonicParsing="false" onAction="#onSortChecked" text="Dateinamen für Sortieren optimieren" />
 
-      <Label fx:id="lblFileName" layoutX="317.0" layoutY="344.0" text="&lt;MSN_DATE_Protokoll.docx" />
-      <Button fx:id="btnGenerate" layoutX="700.0" layoutY="340.0" mnemonicParsing="false" text="Protokollvorlage Generieren" onAction="#onGenerate" disable="true"/>
-      <Button fx:id="btnFinish" layoutX="818.0" layoutY="371.0" mnemonicParsing="false" text="Fertig" onAction="#onFinish"/>
+      <Label fx:id="lblFileName" layoutX="317.0" layoutY="344.0" text="&lt;MSN_DATE_Protokoll.docx&gt;" />
+      <Button fx:id="btnGenerate" disable="true" layoutX="700.0" layoutY="340.0" mnemonicParsing="false" onAction="#onGenerate" text="Protokollvorlage Generieren" />
+      <Button fx:id="btnFinish" layoutX="818.0" layoutY="371.0" mnemonicParsing="false" onAction="#onFinish" text="Fertig" />
+      <Button fx:id="btnEditRef" layoutX="127.0" layoutY="92.0" maxHeight="25.0" minHeight="25.0" mnemonicParsing="false" onMouseClicked="#editRef" prefHeight="25.0" prefWidth="174.0" text="Liste 'Ref' Bearbeiten">
+         <padding>
+            <Insets bottom="0" left="0" right="0" top="0" />
+         </padding>
+         <graphic>
+      
+                        <ImageView fitHeight="25.0" fitWidth="25.0" onMouseClicked="#editRef" pickOnBounds="true" preserveRatio="true" translateX="-16.0">
+               <image>
+                  <Image url="@images/wrench-icon-25543.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <tooltip>
+            <Tooltip text="Bearbeite die Liste der Referenten" />
+         </tooltip>
+      </Button>
+      <Button layoutX="499.0" layoutY="123.0" maxHeight="25.0" minHeight="25.0" mnemonicParsing="false" onMouseClicked="#editMsn" prefHeight="25.0" prefWidth="174.0" text="Liste 'Msn' bearbeiten">
+         <padding>
+            <Insets bottom="0" left="0" right="0" top="0" />
+         </padding>
+         <graphic>
 
-      <ImageView fx:id="btnEditRef" fitHeight="25.0" fitWidth="23.0" layoutX="307.0" layoutY="62.0" pickOnBounds="true" preserveRatio="true" onMouseClicked="#editRef">
-         <image>
-            <Image url="@images/wrench-icon-25543.png" />
-         </image></ImageView>
-
-      <ImageView fx:id="btnEditMsn" fitHeight="25.0" fitWidth="23.0" layoutX="807.0" layoutY="62.0" pickOnBounds="true" preserveRatio="true" onMouseClicked="#editMsn">
-         <image>
-            <Image url="@images/wrench-icon-25543.png" />
-         </image>
-         <viewport>
-            <Rectangle2D />
-         </viewport>
-      </ImageView>
+                  <ImageView fx:id="btnEditMsn" fitHeight="25.0" fitWidth="25.0" onMouseClicked="#editMsn" pickOnBounds="true" preserveRatio="true" translateX="-16.0">
+               <image>
+                  <Image url="@images/wrench-icon-25543.png" />
+               </image>
+               <viewport>
+                  <Rectangle2D />
+               </viewport>
+            </ImageView>
+         </graphic>
+         <tooltip>
+            <Tooltip text="Bearbeite die Liste der Maßnahmen" />
+         </tooltip>
+      </Button>
    </children>
 </AnchorPane>
