@@ -3,17 +3,15 @@ package de.die_gfi.projektunterrichtsprotokolle;
 import DB.Access.DBConnection;
 import DB.Access.DBProperty;
 import DB.Classes.Masznahme;
-import DB.IDBConnection;
+import DB.Access.IDBConnection;
+import Document.DocumentMaker;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
-import javax.xml.transform.Result;
+import java.io.File;
 import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +21,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class ProtocolController implements Initializable{
@@ -67,9 +64,12 @@ public class ProtocolController implements Initializable{
     public Button btnGenerate;
     @FXML
     public Button btnFinish;
+    @FXML
+    public Label lblStatus;
 
     private final IDBConnection dbcon = new DBConnection().openConnection(DBProperty.readProperties());
     private static final String DEFAULTFOLDER = "C:\\Users\\Admin\\Documents\\baseFolderProtocol";
+
 
 
     @Override
@@ -130,7 +130,7 @@ public class ProtocolController implements Initializable{
                 tBoxUOrt.setText(rs.getString("unterrichtsort"));
             }
             cBoxMsn2.setDisable(false);
-        } catch (Exception e) {
+        } catch (Exception e){
         }
 
     }
@@ -220,41 +220,62 @@ public class ProtocolController implements Initializable{
     }
 
     private void updateFilename(){
+        int validParts = 0;
+        if(cBoxReferent.getSelectionModel().getSelectedItem()!=null&&!cBoxReferent.getSelectionModel().getSelectedItem().toString().isEmpty()){
+            validParts++;
+        }
         String filename = "";
         String date = "";
         String format = (checkBoxSort.isSelected()) ? "yyyyMMdd" : "dd.MM.yyyy";
-        if(cBoxMsn1.getSelectionModel().getSelectedItem()==null){
+        if(cBoxMsn1.getSelectionModel().getSelectedItem()==null||cBoxMsn1.getSelectionModel().getSelectedItem().toString().isEmpty()){
             filename = "MSN";
         } else {
             filename = cBoxMsn1.getSelectionModel().getSelectedItem().toString();
+            validParts++;
         }
         if(tBoxDates.getText()==null||tBoxDates.getText().isEmpty()) {
             date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         } else {
             date = LocalDate.parse(tBoxDates.getText().split(",")[0].trim(), DateTimeFormatter.ofPattern("dd.MM.yyyy")).format(DateTimeFormatter.ofPattern(format));
+            validParts++;
         }
         filename+="_"+date+"_Protokoll.docx";
         lblFileName.setText(filename);
+        btnGenerate.setDisable(validParts != 3);
     }
 
     @FXML
     public void onTargetUpdated() {
+
     }
 
     @FXML
     public void onFolderSelect() {
+
     }
 
     @FXML
     public void onZipChecked() {
+
     }
 
     @FXML
     public void onOpenChecked() {
+
     }
 
     @FXML
     public void onOpenClicked() {
+        if (new File(tBoxTarget.getText()).exists()) {
+            String[] folder = new String[]{"explorer", tBoxTarget.getText()};
+            try {
+                Runtime.getRuntime().exec(folder);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        } else {
+            lblStatus.setText("Ungültiger ordner");
+        }
     }
 
     @FXML
@@ -268,6 +289,59 @@ public class ProtocolController implements Initializable{
 
     @FXML
     public void onGenerate() {
+        String fileOrdner = tBoxTarget.getText().isEmpty() ?  DEFAULTFOLDER : tBoxTarget.getText();
+        File file = new File(fileOrdner);
+        if (!file.exists()) {
+            lblStatus.setText("Ungültiger ordner");
+            return;
+        }
+
+        try {
+            ArrayList<String> arraySeminarleiter = new ArrayList<>();
+            if (cBoxMsn1.getValue() != null) {
+                arraySeminarleiter.add(cBoxMsn1.getValue().toString());
+            }
+            if (cBoxMsn2.getValue() != null) {
+                arraySeminarleiter.add(cBoxMsn2.getValue().toString());
+            }
+
+            String targetFolder = tBoxTarget.getText();
+            String formattedDates = dateListFormatter((!tBoxDates.getText().isEmpty()) ? tBoxDates.getText() : dateWithFormat(LocalDate.now()) );
+            int year = getStartingYear(formattedDates);
+
+            for (String s : arraySeminarleiter) {
+                String sql = "Select msnid, msnname, seml, aNr, unterrichtsort, ADatum, EDatum FROM masznahme WHERE msnName = '" + s + "'";
+                PreparedStatement stmt = dbcon.getConnection().prepareStatement(sql);
+                System.out.println(sql);
+                stmt.execute();
+                ResultSet rs = stmt.getResultSet();
+
+                while (rs.next()) {
+                    Masznahme ms = new Masznahme(rs.getInt("msnid"),
+                            rs.getString("msnName"),
+                            rs.getString("semL"),
+                            rs.getInt("aNr"),
+                            rs.getString("Unterrichtsort"),
+                            rs.getString("ADatum"),
+                            rs.getString("EDatum"));
+                    DocumentMaker.templateFiller(dbcon, ms,
+                            tBoxDates.getText(),
+                            cBoxReferent.getValue().toString(),
+                            (targetFolder != null && !targetFolder.isEmpty()) ? targetFolder : DEFAULTFOLDER,
+                            checkBoxSort.isSelected(),
+                            (dPickVon.getValue() != null) ? dPickVon.getValue().getYear() : year);
+                }
+
+                lblStatus.setText("Anwesenheitslisten Erfolgreich Erzeugt!");
+            }
+
+            if (checkBoxOpen.isSelected()) {
+                openFolder();
+            }
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     @FXML
@@ -284,5 +358,40 @@ public class ProtocolController implements Initializable{
     @FXML
     public void editMsn() {
         System.out.println("MsnEdit");
+    }
+
+    public static String dateListFormatter(String allDates) {
+        allDates = allDates.replaceAll(", ", " ");
+        allDates = allDates.replaceAll("\\s+", ",");
+        return allDates;
+    }
+
+    private static String dateWithFormat(LocalDate date){
+        return dateWithFormat(date,"dd.MM.yyyy");
+    }
+
+    private static String dateWithFormat(LocalDate date, String format){
+        date.format(DateTimeFormatter.ofPattern(format));
+        return date.format(DateTimeFormatter.ofPattern(format));
+    }
+
+    private static int getStartingYear(String dateList) {
+        String relevantYear = dateList.split(",")[0];
+        String getYear = relevantYear.split("\\.")[2];
+        getYear = ((getYear.length() == 2) ? "20" : "") + getYear;
+        int yearAsInt = (getYear.length() == 4) ? Integer.parseInt(getYear) : LocalDate.now().getYear();
+        return yearAsInt;
+    }
+    private void openFolder() {
+        if (new File(tBoxTarget.getText()).exists()) {
+            String[] folder = new String[]{"explorer", lblStatus.getText()};
+            try {
+                Runtime.getRuntime().exec(folder);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        } else {
+            lblStatus.setText("Ungültiger ordner");
+        }
     }
 }

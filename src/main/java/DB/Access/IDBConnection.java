@@ -1,4 +1,4 @@
-package DB;
+package DB.Access;
 
 import java.sql.Connection;
 import java.util.Properties;

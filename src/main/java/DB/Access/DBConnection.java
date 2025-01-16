@@ -1,7 +1,5 @@
 package DB.Access;
 
-import DB.IDBConnection;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
