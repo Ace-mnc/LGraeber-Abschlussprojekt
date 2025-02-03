@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -189,13 +190,16 @@ public class ProtocolController implements Initializable{
     private String dateFiller(){
         String dates = "";
         int dateCurrent = (int) dPickVon.getValue().toEpochDay();
-        while(dateCurrent<(int) dPickBis.getValue().toEpochDay()){
+        while(dateCurrent<=(int) dPickBis.getValue().toEpochDay()){
             boolean firstDay = false;
             while(LocalDate.ofEpochDay(dateCurrent).getDayOfWeek()== DayOfWeek.SATURDAY || LocalDate.ofEpochDay(dateCurrent).getDayOfWeek()==  DayOfWeek.SUNDAY || (LocalDate.ofEpochDay(dateCurrent).getDayOfWeek()== DayOfWeek.FRIDAY && !checkBoxFriday.isSelected())){
                 dateCurrent++;
                 if(LocalDate.ofEpochDay(dateCurrent).getDayOfYear()==1) {
                     firstDay = true;
                 }
+            }
+            if(dateCurrent>dPickBis.getValue().toEpochDay()) {
+                return dates;
             }
             dates+= LocalDate.ofEpochDay(dateCurrent).format(DateTimeFormatter.ofPattern("dd.MM."));
             if(dateCurrent==dPickVon.getValue().toEpochDay()) {
@@ -206,7 +210,6 @@ public class ProtocolController implements Initializable{
             dates+= ", ";
             dateCurrent++;
         }
-        dates+=dPickBis.getValue().format(DateTimeFormatter.ofPattern("dd.MM."));
         System.out.println(dates);
         return dates;
     }
@@ -251,7 +254,11 @@ public class ProtocolController implements Initializable{
 
     @FXML
     public void onFolderSelect() {
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setTitle("Ordner Auswählen");
+        File sd = dc.showDialog(btnSelectFolder.getScene().getWindow());
 
+        tBoxTarget.setText(sd.getAbsoluteFile().getAbsolutePath());
     }
 
     @FXML

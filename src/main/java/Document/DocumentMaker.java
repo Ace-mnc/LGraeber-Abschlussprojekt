@@ -18,7 +18,7 @@ import java.util.List;
 
 
 public class DocumentMaker {
-    public static final String TEMPLATESOURCE = "C:\\Users\\Admin\\Documents\\testFolder\\template\\Vorlage-Anwesenheitsliste.docx";
+    public static final String TEMPLATESOURCE = "C:\\Users\\Admin\\Documents\\baseFolderProtocol\\template\\Vorlage-Protokoll.docx";
 
     private static HashMap<String, String> createReplaceMap(Masznahme masznahme, String ref) {
         HashMap<String, String> replaceMap = new HashMap<>();
@@ -27,9 +27,8 @@ public class DocumentMaker {
         replaceMap.put(":2", masznahme.getSeminarleitung());
         replaceMap.put(":3", ref);
         replaceMap.put(":4", masznahme.getUnterrichtsort());
-        replaceMap.put(":5", "date");
-        replaceMap.put(":6", "");
-        replaceMap.put(":13","date");
+        replaceMap.put(":5", "DATEMISSING");
+        replaceMap.put(":6", "DATEMISSING");
 
         return replaceMap;
     }
@@ -47,13 +46,12 @@ public class DocumentMaker {
         for (String date : dateList) {
             XWPFDocument document = new XWPFDocument(new FileInputStream(TEMPLATESOURCE));
 
-            templateNumberer(document);
-
             date= dateParser(date,currentYear,firstDate);
 
             firstDate = false;
             System.out.println("Aktuelles Datum (date): " + date);
-            replaceMap.put(":4", date);
+            replaceMap.put(":5", date);
+            replaceMap.put(":6",date);
             templateLooper(document, replaceMap);
 
             //output
@@ -106,19 +104,5 @@ public class DocumentMaker {
         }
     }
 
-    private static void templateNumberer(XWPFDocument document) {
-        int a = 0;
-        for (XWPFTable table : document.getTables()) {
-            for (XWPFTableRow row : table.getRows()) {
-                for (XWPFTableCell cell : row.getTableCells()) {
-                    for (XWPFParagraph paragraph : cell.getParagraphs()) {
-                        for (XWPFRun runA : paragraph.getRuns()) {
-                            runA.setText(""+a,0);
-                            a++;
-                        }
-                    }
-                }
-            }
-        }
-    }
+
 }
