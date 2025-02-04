@@ -4,14 +4,21 @@ import DB.Access.DBConnection;
 import DB.Access.DBProperty;
 import DB.Classes.Masznahme;
 import DB.Access.IDBConnection;
+import DB.Classes.Referent;
 import Document.DocumentMaker;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.net.URL;
 import java.sql.PreparedStatement;
@@ -199,6 +206,8 @@ public class ProtocolController implements Initializable{
                 }
             }
             if(dateCurrent>dPickBis.getValue().toEpochDay()) {
+                dates+="<";
+                dates = dates.replace(", <","");
                 return dates;
             }
             dates+= LocalDate.ofEpochDay(dateCurrent).format(DateTimeFormatter.ofPattern("dd.MM."));
@@ -210,6 +219,8 @@ public class ProtocolController implements Initializable{
             dates+= ", ";
             dateCurrent++;
         }
+        dates+="<";
+        dates = dates.replace(", <","");
         System.out.println(dates);
         return dates;
     }
@@ -242,7 +253,7 @@ public class ProtocolController implements Initializable{
             date = LocalDate.parse(tBoxDates.getText().split(",")[0].trim(), DateTimeFormatter.ofPattern("dd.MM.yyyy")).format(DateTimeFormatter.ofPattern(format));
             validParts++;
         }
-        filename+="_"+date+"_Protokoll.docx";
+        filename+="_"+date+"_Protokoll."+((checkBoxZip.isSelected())?"zip":"docx");
         lblFileName.setText(filename);
         btnGenerate.setDisable(validParts != 3);
     }
@@ -263,7 +274,7 @@ public class ProtocolController implements Initializable{
 
     @FXML
     public void onZipChecked() {
-
+        updateFilename();
     }
 
     @FXML
@@ -336,15 +347,37 @@ public class ProtocolController implements Initializable{
                             cBoxReferent.getValue().toString(),
                             (targetFolder != null && !targetFolder.isEmpty()) ? targetFolder : DEFAULTFOLDER,
                             checkBoxSort.isSelected(),
-                            (dPickVon.getValue() != null) ? dPickVon.getValue().getYear() : year);
+                            (dPickVon.getValue() != null) ? dPickVon.getValue().getYear() : year,
+                            checkBoxZip.isSelected());
                 }
 
-                lblStatus.setText("Anwesenheitslisten Erfolgreich Erzeugt!");
             }
 
             if (checkBoxOpen.isSelected()) {
                 openFolder();
             }
+            if(checkBoxCopyEmail.isSelected()){
+                String x = cBoxReferent.getSelectionModel().getSelectedItem().toString();
+                String sql = "select id, nachname, vorname, Email FROM referenten WHERE Nachname = '"+x+"'";
+                PreparedStatement stmt = dbcon.getConnection().prepareStatement(sql);
+                stmt.execute();
+                ResultSet rs = stmt.getResultSet();
+                Referent ref;
+                StringSelection mail;
+                if(rs.next()) {
+                    ref = new Referent(rs.getInt("id"),
+                            rs.getString("Nachname"),
+                            rs.getString("Vorname"),
+                            rs.getString("email"));
+
+                    mail = new StringSelection(ref.geteMail());
+
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    clipboard.setContents(mail,mail);
+                }
+
+            }
+            lblStatus.setText("Anwesenheitslisten Erfolgreich Erzeugt!");
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -401,4 +434,5 @@ public class ProtocolController implements Initializable{
             lblStatus.setText("Ungültiger ordner");
         }
     }
+
 }

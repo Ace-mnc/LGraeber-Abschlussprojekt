@@ -5,16 +5,15 @@ import DB.Classes.Masznahme;
 import org.apache.poi.xwpf.usermodel.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 public class DocumentMaker {
@@ -23,7 +22,7 @@ public class DocumentMaker {
     private static HashMap<String, String> createReplaceMap(Masznahme masznahme, String ref) {
         HashMap<String, String> replaceMap = new HashMap<>();
         replaceMap.put(":0", masznahme.getName());
-        replaceMap.put(":1", ""+masznahme.getAuftragsnr());
+        replaceMap.put(":1", "" + masznahme.getAuftragsnr());
         replaceMap.put(":2", masznahme.getSeminarleitung());
         replaceMap.put(":3", ref);
         replaceMap.put(":4", masznahme.getUnterrichtsort());
@@ -35,60 +34,79 @@ public class DocumentMaker {
 
     static String day = "";
     static String month = "";
-    public static void templateFiller(IDBConnection dbcon, Masznahme masznahme, String dates, @Nullable String ref , String outFolder, boolean efficient, int startYR) throws Exception {
 
-
+    public static void templateFiller(IDBConnection dbcon, Masznahme masznahme, String dates, @Nullable String ref, String outFolder, boolean efficientDateSorting, int currentYear, boolean createZipFile) throws Exception {
 
         String[] dateList = dateListParser(dates);
+        String startDate = ((efficientDateSorting) ? LocalDate.parse(dateList[0], DateTimeFormatter.ofPattern("dd.MM.yyyy")).format(DateTimeFormatter.ofPattern("yyyyMMdd")) : dateList[0]);
+        String endDate = ((efficientDateSorting) ? LocalDate.parse(dateList[dateList.length - 1] + LocalDate.now().getYear(), DateTimeFormatter.ofPattern("dd.MM.yyyy")).format(DateTimeFormatter.ofPattern("yyyyMMdd")) : dateList[dateList.length - 1]);
+        String zipname = outFolder + "\\" + startDate + "-" + endDate
+                + "_" + masznahme.getName() + "_" + "Unterrichtsprotokolle.zip";
+        ZipOutputStream zOut = null;
+        if(createZipFile) {
+             zOut = new ZipOutputStream(new FileOutputStream(zipname));
+        }
+
         HashMap<String, String> replaceMap = createReplaceMap(masznahme, ref);
-        int currentYear = startYR;
         boolean firstDate = true;
         for (String date : dateList) {
-            XWPFDocument document = new XWPFDocument(new FileInputStream(TEMPLATESOURCE));
+            date = dateStringBuilder(date, currentYear, firstDate);
+            String timestamp = (efficientDateSorting) ? currentYear + month + day : date;
+            String fileName = timestamp + "_" + masznahme.getName() + "_" + "Unterrichtsprotokoll.docx";
 
-            date= dateParser(date,currentYear,firstDate);
-
+            generateDocument(fileName, outFolder, date, currentYear, firstDate, replaceMap);
+            if (createZipFile) {
+                File trg = new File(outFolder + "\\" + fileName);
+                zipFile(trg, fileName, zOut);
+                trg.delete();
+            }
             firstDate = false;
-            System.out.println("Aktuelles Datum (date): " + date);
-            replaceMap.put(":5", date);
-            replaceMap.put(":6",date);
-            templateLooper(document, replaceMap);
 
-            //output
-
-
-            String timestamp = (efficient) ? currentYear + month + day : date;
-            String out = outFolder + "\\" + timestamp + "_" + masznahme.getName() + "_" + "Unterrichtsprotokoll.docx";
-
-            FileOutputStream stream = new FileOutputStream(out);
-            document.write(stream);
-            stream.close();
-            document.close();
+        }
+        if(createZipFile) {
+            zOut.close();
         }
     }
 
-    public static String[] dateListParser(String allDates){
+    private static void generateDocument(String fileName, String outFolder, String date, int currentYear, boolean firstDate, HashMap<String, String> replaceMap) throws IOException {
+        XWPFDocument document = new XWPFDocument(new FileInputStream(TEMPLATESOURCE));
+
+
+
+        System.out.println("Aktuelles Datum (date): " + date);
+        replaceMap.put(":5", date);
+        replaceMap.put(":6", date);
+        fillInData(document, replaceMap);
+
+        //output
+        FileOutputStream stream = new FileOutputStream(outFolder + "\\" + fileName);
+        document.write(stream);
+        stream.close();
+        document.close();
+    }
+
+    public static String[] dateListParser(String allDates) {
         String[] parsedDates;
-        allDates = allDates.replaceAll(", "," ");
+        allDates = allDates.replaceAll(", ", " ");
         allDates = allDates.replaceAll("\\s+", ",");
         parsedDates = allDates.split(",");
         return parsedDates;
     }
 
-    public static String dateParser(String chosenDate,int currentYear,boolean firstDate){
+    public static String dateStringBuilder(String chosenDate, int currentYear, boolean firstDate) {
         String parsedDate;
         chosenDate = (chosenDate.isEmpty()) ? LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) : chosenDate;
         String[] partsOfDate = chosenDate.split("\\.");
-        if (partsOfDate[0].contains("01")&&partsOfDate[1].contains("01") && !firstDate) {
+        if (partsOfDate[0].contains("01") && partsOfDate[1].contains("01") && !firstDate) {
             currentYear++;
         }
         day = partsOfDate[0];
         month = partsOfDate[1];
-        parsedDate = (partsOfDate.length < 3) ? partsOfDate[0]+"."+partsOfDate[1]+"." + currentYear : partsOfDate[0]+"."+partsOfDate[1]+"."+( (partsOfDate[2].length()==4) ? partsOfDate[2]:"20"+partsOfDate[2]);
+        parsedDate = (partsOfDate.length < 3) ? partsOfDate[0] + "." + partsOfDate[1] + "." + currentYear : partsOfDate[0] + "." + partsOfDate[1] + "." + ((partsOfDate[2].length() == 4) ? partsOfDate[2] : "20" + partsOfDate[2]);
         return parsedDate;
     }
 
-    private static void templateLooper(XWPFDocument document, HashMap<String, String> replaceMap) {
+    private static void fillInData(XWPFDocument document, HashMap<String, String> replaceMap) {
         for (XWPFTable table : document.getTables()) {
             for (XWPFTableRow row : table.getRows()) {
                 for (XWPFTableCell cell : row.getTableCells()) {
@@ -104,5 +122,33 @@ public class DocumentMaker {
         }
     }
 
+    private static void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut) throws IOException {
+        if (fileToZip.isHidden()) {
+            return;
+        }
+        if (fileToZip.isDirectory()) {
+            if (fileName.endsWith("/")) {
+                zipOut.putNextEntry(new ZipEntry(fileName));
+                zipOut.closeEntry();
+            } else {
+                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
+                zipOut.closeEntry();
+            }
+            File[] children = fileToZip.listFiles();
+            for (File childFile : children) {
+                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
+            }
+            return;
+        }
+        FileInputStream fis = new FileInputStream(fileToZip);
+        ZipEntry zipEntry = new ZipEntry(fileName);
+        zipOut.putNextEntry(zipEntry);
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0) {
+            zipOut.write(bytes, 0, length);
+        }
+        fis.close();
+    }
 
 }
