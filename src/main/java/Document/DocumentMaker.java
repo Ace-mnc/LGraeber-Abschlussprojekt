@@ -2,6 +2,7 @@ package Document;
 
 import DB.Access.IDBConnection;
 import DB.Classes.Masznahme;
+import de.die_gfi.projektunterrichtsprotokolle.ProtocolController;
 import org.apache.poi.xwpf.usermodel.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -17,7 +18,7 @@ import java.util.zip.ZipOutputStream;
 
 
 public class DocumentMaker {
-    public static final String TEMPLATESOURCE = "C:\\Users\\Admin\\Documents\\baseFolderProtocol\\template\\Vorlage-Protokoll.docx";
+    public static final String TEMPLATESOURCE = ProtocolController.TEMPLATESOURCE;
 
     private static HashMap<String, String> createReplaceMap(Masznahme masznahme, String ref) {
         HashMap<String, String> replaceMap = new HashMap<>();
@@ -58,7 +59,6 @@ public class DocumentMaker {
             if (createZipFile) {
                 File trg = new File(outFolder + "\\" + fileName);
                 zipFile(trg, fileName, zOut);
-                trg.delete();
             }
             firstDate = false;
 
@@ -102,7 +102,8 @@ public class DocumentMaker {
         }
         day = partsOfDate[0];
         month = partsOfDate[1];
-        parsedDate = (partsOfDate.length < 3) ? partsOfDate[0] + "." + partsOfDate[1] + "." + currentYear : partsOfDate[0] + "." + partsOfDate[1] + "." + ((partsOfDate[2].length() == 4) ? partsOfDate[2] : "20" + partsOfDate[2]);
+        parsedDate = (partsOfDate.length < 3) ? partsOfDate[0] + "." + partsOfDate[1] + "." + currentYear : partsOfDate[0] + "." +
+                        partsOfDate[1] + "." + ((partsOfDate[2].length() == 4) ? partsOfDate[2] : "20" + partsOfDate[2]);
         return parsedDate;
     }
 

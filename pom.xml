@@ -76,7 +76,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                de.die_gfi.projektunterrichtsprotokolle/de.die_gfi.projektunterrichtsprotokolle.HelloApplication
+                                de.die_gfi.projektunterrichtsprotokolle/de.die_gfi.projektunterrichtsprotokolle.StartApp
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

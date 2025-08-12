@@ -1,12 +1,14 @@
 package DB.Classes;
 
 public class Masznahme {
-    private final int id;
+    private int id;
     private String name;
     private String seminarleitung;
     private int auftragsnr;
     private String unterrichtsort;
     private String anfangsDatum;
+    private String endDatum;
+
 
     public String getEndDatum() {
         return endDatum;
@@ -16,8 +18,6 @@ public class Masznahme {
         this.endDatum = endDatum;
     }
 
-    private String endDatum;
-
     public Masznahme(int id,String name,String seminarleitung,int auftragsnr,String unterrichtsort,String anfangsDatum, String endDatum){
         this.id = id;
         this.name = name;
@@ -26,6 +26,10 @@ public class Masznahme {
         this.unterrichtsort = unterrichtsort;
         this.anfangsDatum = anfangsDatum;
         this.endDatum = endDatum;
+    }
+
+    public void setId(int id){
+        this.id = id;
     }
 
     public int getId() {
@@ -67,6 +71,7 @@ public class Masznahme {
     public String getAnfangsDatum(){
         return anfangsDatum;
     }
+
     public void setAnfangsDatum(String anfangsDatum){
         this.anfangsDatum = anfangsDatum;
     }

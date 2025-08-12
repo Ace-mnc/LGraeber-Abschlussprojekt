@@ -12,4 +12,5 @@ module de.die_gfi.projektunterrichtsprotokolle {
     exports DB.Access;
     exports DB.Classes;
     exports Document;
+    opens Document to javafx.fxml;
 }

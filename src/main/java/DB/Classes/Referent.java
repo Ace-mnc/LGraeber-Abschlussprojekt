@@ -17,6 +17,9 @@ public class Referent {
         return id;
     }
 
+    public void setId(int id){
+        this.id = id;
+    }
 
     public String getNachname() {
         return nachname;
@@ -34,11 +37,11 @@ public class Referent {
         this.vorname = vorname;
     }
 
-    public String geteMail() {
+    public String getEMail() {
         return eMail;
     }
 
-    public void seteMail(String eMail) {
+    public void setEMail(String eMail) {
         this.eMail = eMail;
     }
 }

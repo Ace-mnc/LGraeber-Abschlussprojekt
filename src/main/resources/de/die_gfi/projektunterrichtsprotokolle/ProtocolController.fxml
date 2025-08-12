@@ -96,5 +96,7 @@
          </tooltip>
       </Button>
       <Label fx:id="lblStatus" layoutX="700.0" layoutY="344.0" text="&lt;Status&gt;" />
+      <Button fx:id="ButtonTemplate" layoutY="448.0" mnemonicParsing="false" onAction="#onChooseTemplate" text="Vorlage Auswählen" />
+      <Button fx:id="buttonDefaults" layoutX="118.0" layoutY="448.0" mnemonicParsing="false" onAction="#onChooseDefaultTarget" text="Standardzielordner Auswählen" />
    </children>
 </AnchorPane>

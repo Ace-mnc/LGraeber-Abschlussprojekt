@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="400.0" prefWidth="516.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.die_gfi.projektunterrichtsprotokolle.ProtocolRefEdit">
+   <children>
+      <ListView fx:id="listViewRef" layoutX="14.0" layoutY="36.0"
+                onMouseClicked="#onListRefClicked" prefHeight="351.0" prefWidth="200.0" />
+      <Label layoutX="62.0" layoutY="14.0" text="Referent Bearbeiten" />
+      <Button fx:id="btnNew" layoutX="232.0" layoutY="36.0" mnemonicParsing="false"
+              onAction="#onBtnNewPressed" text="Neu" />
+      <Button fx:id="btnDel" disable="true" layoutX="316.0" layoutY="36.0"
+              mnemonicParsing="false" onAction="#onBtnDelPressed" text="Löschen" />
+      <Button fx:id="btnClose" layoutX="435.0" layoutY="362.0" mnemonicParsing="false"
+              onAction="#onBtnClosePressed" text="Schließen" />
+      <Label layoutX="232.0" layoutY="111.0" text="Nachname:" />
+      <Label layoutX="232.0" layoutY="142.0" text="Vorname:" />
+      <Label layoutX="233.0" layoutY="173.0" text="E-Mail:" />
+      <TextField fx:id="tBoxNName" disable="true" layoutX="305.0" layoutY="107.0"
+                 onKeyPressed="#onRefEdited" prefHeight="25.0" prefWidth="200.0" />
+      <TextField fx:id="tBoxVName" disable="true" layoutX="305.0" layoutY="138.0"
+                 onKeyPressed="#onRefEdited" prefHeight="25.0" prefWidth="200.0" />
+      <TextField fx:id="tBoxEMail" disable="true" layoutX="305.0" layoutY="169.0"
+                 onKeyPressed="#onRefEdited" prefWidth="200.0" />
+      <Button fx:id="btnApply" disable="true" layoutX="419.0" layoutY="200.0"
+              mnemonicParsing="false" onAction="#onBtnApplyPressed" text="Übernehmen" />
+   </children>
+</AnchorPane>

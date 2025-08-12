@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="400.0" prefWidth="533.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.die_gfi.projektunterrichtsprotokolle.ProtocolMsnEdit">
+   <children>
+      <ListView fx:id="listViewMsn" layoutX="14.0" layoutY="36.0"
+                onMouseClicked="#onListRefClicked" prefHeight="351.0" prefWidth="200.0" />
+      <Label layoutX="62.0" layoutY="14.0" text="Maßnahme Bearbeiten" />
+      <Button fx:id="btnNew" layoutX="232.0" layoutY="36.0" mnemonicParsing="false"
+              onAction="#onBtnNewPressed" text="Neu" />
+      <Button fx:id="btnDel" disable="true" layoutX="316.0" layoutY="36.0" mnemonicParsing="false"
+              onAction="#onBtnDelPressed" text="Löschen" />
+      <Button fx:id="btnClose" layoutX="454.0" layoutY="361.0" mnemonicParsing="false"
+              onAction="#onBtnClosePressed" text="Schließen" />
+
+      <Label layoutX="232.0" layoutY="111.0" text="Bezeichnung:" />
+      <Label layoutX="232.0" layoutY="142.0" text="Anfangsdatum:" />
+      <Label layoutX="233.0" layoutY="173.0" text="Enddatum:" />
+
+      <TextField fx:id="tBoxMsnName" disable="true" layoutX="324.0" layoutY="106.0"
+                 onKeyPressed="#onRefEdited" prefHeight="25.0" prefWidth="200.0" />
+      <TextField fx:id="tBoxADatum" disable="true" layoutX="324.0" layoutY="137.0"
+                 onKeyPressed="#onRefEdited" prefHeight="25.0" prefWidth="200.0" />
+      <TextField fx:id="tBoxEDatum" disable="true" layoutX="324.0" layoutY="168.0"
+                 onKeyPressed="#onRefEdited" prefWidth="200.0" />
+
+      <Button fx:id="btnApply" disable="true" layoutX="435.0" layoutY="293.0" mnemonicParsing="false"
+              onAction="#onBtnApplyPressed" text="Übernehmen" />
+      <Label layoutX="233.0" layoutY="204.0" text="Seminarleiter:" />
+      <Label layoutX="233.0" layoutY="235.0" text="Auftragsnummer:" />
+      <Label layoutX="234.0" layoutY="266.0" text="Unterrichtsort:" />
+      <TextField fx:id="tBoxSemL" disable="true" layoutX="325.0" layoutY="199.0"
+                 onKeyPressed="#onRefEdited" prefHeight="25.0" prefWidth="200.0" />
+      <TextField fx:id="tBoxANr" disable="true" layoutX="325.0" layoutY="230.0"
+                 onKeyPressed="#onRefEdited" prefHeight="25.0" prefWidth="200.0" />
+      <TextField fx:id="tBoxUOrt" disable="true" layoutX="325.0" layoutY="261.0"
+                 onKeyPressed="#onRefEdited" prefWidth="200.0" />
+   </children>
+</AnchorPane>

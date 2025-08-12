@@ -7,13 +7,17 @@ import DB.Access.IDBConnection;
 import DB.Classes.Referent;
 import Document.DocumentMaker;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -30,6 +34,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
 
 public class ProtocolController implements Initializable{
     @FXML
@@ -37,9 +42,9 @@ public class ProtocolController implements Initializable{
     @FXML
     public ChoiceBox cBoxMsn1;
     @FXML
-    public Label lblSemL1;
-    @FXML
     public ChoiceBox cBoxMsn2;
+    @FXML
+    public Label lblSemL1;
     @FXML
     public Label lblSemL2;
     @FXML
@@ -76,22 +81,41 @@ public class ProtocolController implements Initializable{
     public Label lblStatus;
 
     private final IDBConnection dbcon = new DBConnection().openConnection(DBProperty.readProperties());
-    private static final String DEFAULTFOLDER = "C:\\Users\\Admin\\Documents\\baseFolderProtocol";
+    private static String DEFAULTFOLDER;
+    public static String TEMPLATESOURCE;
 
-
+    public ProtocolController pc = this;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         dbcon.openConnection(DBProperty.readProperties());
-        setChoiceBox(cBoxMsn1, "msnName", "Masznahme", lblSemL1, "Seminarleitung 1");
-        setChoiceBox(cBoxMsn2, "msnName", "Masznahme", lblSemL2, "Seminarleitung 2");
+        setChoiceBox(cBoxMsn1, "msnName", "Masznahmen", lblSemL1, "Seminarleitung 1");
+        setChoiceBox(cBoxMsn2, "msnName", "Masznahmen", lblSemL2, "Seminarleitung 2");
         setChoiceBox(cBoxReferent, "Nachname", "referenten", null, null);
         System.out.println(cBoxReferent.getItems());
+        try {
+            PreparedStatement stmt = this.dbcon.getConnection().prepareStatement("SELECT Location FROM templates WHERE Program = 'Protokollvorlage'");
+            stmt.execute();
+            String nxt = "";
+            ResultSet rs = stmt.getResultSet();
+            while (rs.next()) {
+                nxt = rs.getString(1);
+            }
+            TEMPLATESOURCE = nxt;
+            stmt = this.dbcon.getConnection().prepareStatement("SELECT Location FROM Defaults WHERE Program = 'Protokollvorlage'");
+            stmt.execute();
+            rs = stmt.getResultSet();
+            while (rs.next()) {
+                nxt = rs.getString(1);
+            }
+            DEFAULTFOLDER = nxt;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         tBoxTarget.setPromptText(DEFAULTFOLDER);
-        //fileNameChanger();
     }
 
-    private void setChoiceBox(ChoiceBox<String> cb, String slc, String tbl, Label lbl, String lbT) {
+    public void setChoiceBox(ChoiceBox<String> cb, String slc, String tbl, Label lbl, String lbT) {
         List<String> rsl = new ArrayList<>();
         rsl.add("Abwählen");
         ResultSet rs;
@@ -130,7 +154,9 @@ public class ProtocolController implements Initializable{
                 return;
             }
             System.out.println(cBoxMsn1.getSelectionModel().getSelectedItem().toString());
-            PreparedStatement stmt = this.dbcon.getConnection().prepareStatement("SELECT SemL,unterrichtsort FROM Masznahme WHERE msnName = '"+cBoxMsn1.getSelectionModel().getSelectedItem().toString()+"'");
+            PreparedStatement stmt = this.dbcon.getConnection().prepareStatement("SELECT SemL,unterrichtsort FROM Masznahmen WHERE msnName = '"+
+                    cBoxMsn1.getSelectionModel().getSelectedItem().toString()+"'");
+
             stmt.execute();
             ResultSet rs = stmt.getResultSet();
             while(rs.next()) {
@@ -152,7 +178,7 @@ public class ProtocolController implements Initializable{
                 return;
             }
             System.out.println(cBoxMsn1.getSelectionModel().getSelectedItem().toString());
-            PreparedStatement stmt = this.dbcon.getConnection().prepareStatement("SELECT SemL,unterrichtsort FROM Masznahme WHERE msnName = '"+cBoxMsn2.getSelectionModel().getSelectedItem().toString()+"'");
+            PreparedStatement stmt = this.dbcon.getConnection().prepareStatement("SELECT SemL,unterrichtsort FROM Masznahmen WHERE msnName = '"+cBoxMsn2.getSelectionModel().getSelectedItem().toString()+"'");
             stmt.execute();
             ResultSet rs = stmt.getResultSet();
             while(rs.next()) {
@@ -169,7 +195,6 @@ public class ProtocolController implements Initializable{
         }
         updateFilename();
     }
-
 
     @FXML
     public void dateVonPicked() {
@@ -285,14 +310,14 @@ public class ProtocolController implements Initializable{
     @FXML
     public void onOpenClicked() {
         if (new File(tBoxTarget.getText()).exists()) {
-            String[] folder = new String[]{"explorer", tBoxTarget.getText()};
+            String[] commands = new String[]{"explorer", tBoxTarget.getText()};
             try {
-                Runtime.getRuntime().exec(folder);
+                Runtime.getRuntime().exec(commands);
             } catch (Exception e) {
                 System.out.println(e);
             }
         } else {
-            lblStatus.setText("Ungültiger ordner");
+            lblStatus.setText("Ungültiger Ordner");
         }
     }
 
@@ -328,7 +353,7 @@ public class ProtocolController implements Initializable{
             int year = getStartingYear(formattedDates);
 
             for (String s : arraySeminarleiter) {
-                String sql = "Select msnid, msnname, seml, aNr, unterrichtsort, ADatum, EDatum FROM masznahme WHERE msnName = '" + s + "'";
+                String sql = "Select msnid, msnname, seml, aNr, unterrichtsort, ADatum, EDatum FROM masznahmen WHERE msnName = '" + s + "'";
                 PreparedStatement stmt = dbcon.getConnection().prepareStatement(sql);
                 System.out.println(sql);
                 stmt.execute();
@@ -356,6 +381,7 @@ public class ProtocolController implements Initializable{
             if (checkBoxOpen.isSelected()) {
                 openFolder();
             }
+
             if(checkBoxCopyEmail.isSelected()){
                 String x = cBoxReferent.getSelectionModel().getSelectedItem().toString();
                 String sql = "select id, nachname, vorname, Email FROM referenten WHERE Nachname = '"+x+"'";
@@ -370,7 +396,7 @@ public class ProtocolController implements Initializable{
                             rs.getString("Vorname"),
                             rs.getString("email"));
 
-                    mail = new StringSelection(ref.geteMail());
+                    mail = new StringSelection(ref.getEMail());
 
                     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                     clipboard.setContents(mail,mail);
@@ -393,11 +419,36 @@ public class ProtocolController implements Initializable{
     @FXML
     public void editRef() {
         System.out.println("RefEdit");
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(StartApp.class.getResource("ProtocolRefEdit.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = new Stage();
+            stage.setTitle("Referenten Bearbeiten");
+            stage.setScene(scene);
+            stage.show();
+            ProtocolRefEdit ref = fxmlLoader.getController();
+            ref.pc = pc;
+
+        } catch (Exception e){
+            System.out.println(e);
+        }
     }
 
     @FXML
     public void editMsn() {
         System.out.println("MsnEdit");
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(StartApp.class.getResource("ProtocolMsnEdit.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = new Stage();
+            stage.setTitle("Maßnahmen Bearbeiten");
+            stage.setScene(scene);
+            stage.show();
+            ProtocolMsnEdit msn = fxmlLoader.getController();
+            msn.pc = pc;
+        } catch (Exception e){
+            System.out.println(e);
+        }
     }
 
     public static String dateListFormatter(String allDates) {
@@ -422,6 +473,7 @@ public class ProtocolController implements Initializable{
         int yearAsInt = (getYear.length() == 4) ? Integer.parseInt(getYear) : LocalDate.now().getYear();
         return yearAsInt;
     }
+
     private void openFolder() {
         if (new File(tBoxTarget.getText()).exists()) {
             String[] folder = new String[]{"explorer", lblStatus.getText()};
@@ -435,4 +487,33 @@ public class ProtocolController implements Initializable{
         }
     }
 
+    public void onChooseTemplate() {
+
+        FileChooser dc = new FileChooser();
+        dc.setTitle("Datei Auswählen");
+        File sd = dc.showOpenDialog(btnSelectFolder.getScene().getWindow());
+        String newTemplate = Matcher.quoteReplacement(sd.getAbsoluteFile().toString());
+        try {
+           PreparedStatement stmt = dbcon.getConnection().prepareStatement("UPDATE templates SET Location = '" + newTemplate + "' WHERE Program = 'Protokollvorlage';");
+           stmt.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        TEMPLATESOURCE = newTemplate;
+    }
+
+    public void onChooseDefaultTarget() {
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setTitle("Ordner Auswählen");
+        File sd = dc.showDialog(btnSelectFolder.getScene().getWindow());
+        String newDefault = Matcher.quoteReplacement(sd.getAbsoluteFile().toString());
+        try {
+            PreparedStatement stmt = dbcon.getConnection().prepareStatement("UPDATE defaults SET Location = '" + newDefault + "' WHERE Program = 'Protokollvorlage';");
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        DEFAULTFOLDER = newDefault;
+        tBoxTarget.setPromptText(DEFAULTFOLDER);
+    }
 }

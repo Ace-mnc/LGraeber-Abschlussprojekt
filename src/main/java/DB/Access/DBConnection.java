@@ -13,10 +13,9 @@ public class DBConnection implements IDBConnection {
     public IDBConnection openConnection(Properties properties) {
         if(connection == null) {
             try {
-                String systemUser = System.getProperty("user.name");
-                String dbURL = properties.getProperty(systemUser + ".db.url");
-                String dbUser = properties.getProperty(systemUser + ".db.user");
-                String dbPassword = properties.getProperty(systemUser + ".db.pw");
+                String dbURL = properties.getProperty("db.url");
+                String dbUser = properties.getProperty("db.user");
+                String dbPassword = properties.getProperty("db.pw");
 
                 connection = DriverManager.getConnection(dbURL,dbUser,dbPassword);
             } catch (SQLException e){
